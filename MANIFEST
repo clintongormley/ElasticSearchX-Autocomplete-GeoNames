@@ -1,0 +1,15 @@
+bin/geonames_admin.pl
+Build.PL
+Changes
+lib/ElasticSearchX/Autocomplete/GeoNames.pm
+lib/ElasticSearchX/Autocomplete/GeoNames/Admin.pm
+Makefile.PL
+MANIFEST
+META.yml
+README
+README.pod
+t/00-load.t
+t/boilerplate.t
+t/manifest.t
+t/pod-coverage.t
+t/pod.t

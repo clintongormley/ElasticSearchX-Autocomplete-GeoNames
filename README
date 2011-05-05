@@ -1,0 +1,40 @@
+NAME
+    ElasticSearchX::Autocomplete::GeoNames - Autocomplete of geolocation
+    data from GeoNames
+
+VERSION
+    Version 0.01 - alpha
+
+DESCRIPTION
+    "ElasticSearchX::Autocomplete::GeoNames" provides
+    country/region/city/town/village autocompete suggestions by building
+    autocomplete indexes from GeoNames data (see
+    <http://www.geonames.org/>).
+
+    This is an alpha module, completely lacking docs and tests at the
+    moment.
+
+    Here be dragons
+
+SEE ALSO
+    ElasticSearchX::Autocomplete, ElasticSearch,
+    <http://www.elasticsearch.org>
+
+TODO
+BUGS
+    If you have any suggestions for improvements, or find any bugs, please
+    report them to
+    <https://github.com/clintongormley/ElasticSearchX-Autocomplete-GeoNames/
+    issues>. I will be notified, and then you'll automatically be notified
+    of progress on your bug as I make changes.
+
+AUTHOR
+    Clinton Gormley, <clinton@traveljury.com>
+
+COPYRIGHT AND LICENSE
+    Copyright (C) 2011 by Clinton Gormley
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself, either Perl version 5.8.7 or, at
+    your option, any later version of Perl 5 you may have available.
+
