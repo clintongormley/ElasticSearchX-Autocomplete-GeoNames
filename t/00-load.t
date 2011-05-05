@@ -3,7 +3,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok( 'ElasticSearchX::Autocomplete-GeoNames' ) || print "Bail out!
+    use_ok( 'ElasticSearchX::Autocomplete::GeoNames' ) || print "Bail out!
 ";
 }
 
