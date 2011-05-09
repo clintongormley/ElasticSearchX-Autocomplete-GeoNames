@@ -94,7 +94,7 @@ sub get_place {
 #===================================
     my ( $self, $params ) = _params(@_);
     my $type = $self->auto_type;
-    $params->{context} = $type->clean_context( delete $params->{lang} );
+    $params->{context} = $type->clean_context( $params->{lang} );
     $params->{index}   = $type->index;
     $params->{type}    = $type->name;
 
@@ -115,33 +115,13 @@ sub _get_place {
     my $self   = shift;
     my $params = shift;
 
-    $params->{size} = 1;
-    $params->{fields} = [ 'place_id', 'parent_ids', 'location', 'rank' ];
+    my $result
+        = $params->{label}
+        ? $self->_get_place_by_label($params)
+        : $self->_get_place_by_id($params)
+        or return undef;
 
-    my $context    = $params->{context};
-    my $rank_field = "rank.$context";
-
-    my @filters = { exists => { field => $rank_field } };
-
-    if ( my $label = $params->{label} ) {
-        push @filters, { term => { label => $label } };
-    }
-    else {
-        my $place_id = $params->{id};
-        return undef unless $place_id;
-        push @filters, { term => { place_id => $place_id } };
-    }
-
-    my $result = $self->auto_type->_context_search(
-        $params,
-        {   query => { constant_score => { filter => { and => \@filters } } },
-            script_fields =>
-                { rank => { script => "doc['$rank_field'].value" } },
-        }
-    );
-    return undef unless @$result;
-
-    my $fields = $result->[0]{fields};
+    my $fields = $result->{_source};
     for ( 'parent_ids', 'tokens' ) {
         my $val = $fields->{$_};
         $fields->{$_}
@@ -150,15 +130,47 @@ sub _get_place {
             :                 $val;
     }
 
-    my ( $lat, $lon ) = split /,/, $fields->{location};
-    $fields->{location} = { lat => $lat, lon => $lon };
-
+    my $context = delete $fields->{context};
     $context =~ s{/}{}g;
     $fields->{lang} = $context;
-
-    $fields->{id} = delete $fields->{place_id};
+    $fields->{id}   = delete $fields->{place_id};
 
     return $fields;
+}
+
+#===================================
+sub _get_place_by_label {
+#===================================
+    my $self   = shift;
+    my $params = shift;
+
+    $params->{size} = 1;
+    delete $params->{lang};
+    my $context = $params->{context};
+    my @filters = (
+        { term => { context => $context } },
+        { term => { label   => $params->{label} } }
+    );
+
+    return $self->auto_type->_context_search( $params,
+        { query => { constant_score => { filter => { and => \@filters } } } }
+    )->[0];
+}
+
+#===================================
+sub _get_place_by_id {
+#===================================
+    my $self   = shift;
+    my $params = shift;
+    my $id     = $params->{id};
+    my $lang   = $params->{lang};
+
+    return $self->es->get(
+        index          => $params->{index},
+        type           => $params->{type},
+        id             => "${id}_${lang}",
+        ignore_missing => 1
+    );
 }
 
 #===================================
