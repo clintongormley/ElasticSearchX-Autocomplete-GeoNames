@@ -14,7 +14,7 @@ my $builder = Module::Build->new(
     add_to_cleanup     => ['ElasticSearchX-*'],
     create_makefile_pl => 'traditional',
     requires           => {
-        'ElasticSearchX::Autocomplete' => '0.01',
+        'ElasticSearchX::Autocomplete' => '0.03',
     },
     meta_merge => {
         resources => {

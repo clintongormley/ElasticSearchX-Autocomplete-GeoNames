@@ -16,13 +16,13 @@ name: ElasticSearchX-Autocomplete-GeoNames
 provides:
   ElasticSearchX::Autocomplete::GeoNames:
     file: lib/ElasticSearchX/Autocomplete/GeoNames.pm
-    version: 0.02
+    version: 0.03
   ElasticSearchX::Autocomplete::GeoNames::Admin:
     file: lib/ElasticSearchX/Autocomplete/GeoNames/Admin.pm
 requires:
-  ElasticSearchX::Autocomplete: 0.01
+  ElasticSearchX::Autocomplete: 0.03
 resources:
   bugtracker: https://github.com/clintongormley/ElasticSearchX-Autocomplete-GeoNames/issues
   license: http://dev.perl.org/licenses/
   repository: https://github.com/clintongormley/ElasticSearchX-Autocomplete-GeoNames/
-version: 0.02
+version: 0.03

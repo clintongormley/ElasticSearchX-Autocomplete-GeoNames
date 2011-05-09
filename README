@@ -3,7 +3,7 @@ NAME
     data from GeoNames
 
 VERSION
-    Version 0.01 - alpha
+    Version 0.03 - alpha
 
 DESCRIPTION
     "ElasticSearchX::Autocomplete::GeoNames" provides

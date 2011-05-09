@@ -5,7 +5,7 @@ WriteMakefile
   'NAME' => 'ElasticSearchX::Autocomplete::GeoNames',
   'VERSION_FROM' => 'lib/ElasticSearchX/Autocomplete/GeoNames.pm',
   'PREREQ_PM' => {
-                   'ElasticSearchX::Autocomplete' => '0.01',
+                   'ElasticSearchX::Autocomplete' => '0.03',
                    'Test::Exception' => 0,
                    'Test::More' => 0
                  },

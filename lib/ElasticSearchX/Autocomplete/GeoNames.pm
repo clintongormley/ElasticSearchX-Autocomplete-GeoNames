@@ -11,7 +11,7 @@ use ElasticSearchX::Autocomplete::Util qw(
 
 use Carp;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 __PACKAGE__->_create_accessors(
     ['cache'],
@@ -191,7 +191,7 @@ ElasticSearchX::Autocomplete::GeoNames - Autocomplete of geolocation data from G
 
 =head1 VERSION
 
-Version 0.02 - alpha
+Version 0.03 - alpha
 
 =head1 DESCRIPTION
 

@@ -1,5 +1,12 @@
 Revision history for ElasticSearchX-Autocomplete-GeoNames
 
+0.03    2011-05-09
+        Changed the structure of the docs to store one doc per lang,
+        instead of listing each lang inside a rank object
+
+        Added _get_place_by_id and _get_place_by_label - by ID now much
+        faster than label
+
 0.02    2011-05-05
         Silly typos preventing the most basic tests from passing
 
