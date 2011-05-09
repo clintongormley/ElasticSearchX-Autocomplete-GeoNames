@@ -58,8 +58,8 @@ sub _init {
         types => {
             $self->type => {
                 custom_fields => {
-                    place_id   => { type => 'integer', store => 'yes' },
-                    parent_ids => { type => 'integer', store => 'yes' },
+                    place_id   => { type => 'integer' },
+                    parent_ids => { type => 'integer' },
                 },
                 %$params,
             }

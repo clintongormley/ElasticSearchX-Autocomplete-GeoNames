@@ -432,23 +432,17 @@ sub _index_phrases {
             $country_id;
 
         my $rank = $place->{rank};
-        my %labels;
+        my @parent_ids = grep { $places->{$_} } @{ $place->{parent_ids} };
         for my $lang (@$langs) {
             my $label = $self->_build_label( $lang, $place, @ancestors );
-            push @{ $labels{$label} }, $lang;
-        }
-
-        my @parent_ids = grep { $places->{$_} } @{ $place->{parent_ids} };
-        for my $label ( keys %labels ) {
-            my $langs = $labels{$label};
             $i++;
             push @phrases,
                 {
                 tokens     => [ $type_indexer->tokenize($label) ],
                 label      => $label,
-                rank       => { map { ( $_ => $rank ) } @$langs },
+                rank       => { $lang => $rank },
                 location   => $place->{location},
-                doc_id     => $place->{id} . '_' . $langs->[0],
+                doc_id     => $place->{id} . '_' . $lang,
                 place_id   => $place->{id},
                 parent_ids => \@parent_ids,
                 };
@@ -637,7 +631,6 @@ sub _open_csv {
     );
     return { fh => $fh, csv => $csv };
 }
-
 
 =head1 NAME
 
