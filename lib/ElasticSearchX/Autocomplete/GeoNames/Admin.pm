@@ -78,11 +78,11 @@ sub indexer {
         if ( !$indexer ) {
             return unless $auto_create;
             $indexer = $auto->indexer();
+            my $type_indexer = $indexer->type('place');
+            $type_indexer->init;
         }
 
         $indexer->cleanup(0);
-        my $type_indexer = $indexer->type('place');
-        $type_indexer->init;
         $self->{_indexer} = $indexer;
     }
     return $self->{_indexer};
