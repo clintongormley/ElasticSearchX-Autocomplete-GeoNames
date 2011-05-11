@@ -26,7 +26,6 @@ our %Place_Ranks = (
 );
 
 our %Merge_Places = (
-    ADM2  => 1,
     ADM3  => 1,
     ADM4  => 1,
     PPL   => 1,
