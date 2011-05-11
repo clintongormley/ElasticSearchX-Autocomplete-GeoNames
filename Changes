@@ -1,4 +1,6 @@
 Revision history for ElasticSearchX-Autocomplete-GeoNames
+0.04    2011-05-11
+        Don't merge places of class ADM2.
 
 0.03    2011-05-09
         Changed the structure of the docs to store one doc per lang,
