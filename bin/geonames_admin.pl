@@ -5,8 +5,6 @@ use warnings;
 
 use lib 'lib';
 use lib '/opt/apache/sites/Projects/ElasticSearch/lib';
-use lib '/opt/apache/sites/Projects/ElasticSearchX-Autocomplete/lib';
-use lib '/opt/apache/sites/Projects/ElasticSearchX-Autocomplete/GeoNames/lib';
 use ElasticSearchX::Autocomplete::GeoNames;
 use ElasticSearch;
 
