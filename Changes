@@ -1,4 +1,8 @@
 Revision history for ElasticSearchX-Autocomplete-GeoNames
+0.05    2011-05-14
+        Don't merge places with the same name that are more than 10km apart.
+        Removed some hard-coded paths from geonames_admin.pl
+
 0.04    2011-05-11
         Don't merge places of class ADM2.
 
