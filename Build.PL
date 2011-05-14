@@ -11,11 +11,13 @@ my $builder = Module::Build->new(
         'Test::More'      => 0,
         'Test::Exception' => 0,
     },
-    add_to_cleanup     => ['ElasticSearchX-*'],
+    add_to_cleanup     => ['ElasticSearchX-Autocomplete-GeoNames*'],
     create_makefile_pl => 'traditional',
     requires           => {
-        'ElasticSearchX::Autocomplete' => '0.03',
+        'ElasticSearchX::Autocomplete' => '0.05',
+        'Geo::Distance'                => '0.16',
     },
+    recommends => { 'Geo::Distance::XS' => '0.08' },
     meta_merge => {
         resources => {
             repository =>
