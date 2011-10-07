@@ -4,7 +4,6 @@ use strict;
 use warnings FATAL => 'all', NONFATAL => 'redefine';
 
 use List::MoreUtils qw(uniq);
-use Geo::Distance();
 use Carp;
 
 our %Place_Ranks = (
@@ -58,7 +57,6 @@ sub new {
     my $self = {
         _place_ranks  => {%Place_Ranks},
         _merge_places => {%Merge_Places},
-        _geo_distance => Geo::Distance->new(),
         _debug        => 0
     };
 
@@ -265,6 +263,11 @@ sub _remove_duplicates {
             }
         }
         $place->{parent_ids} = \@new_parents;
+        my $ancestor_id = $place->{ancestor_id};
+        $place->{ancestor_id} = $duplicates{$ancestor_id}{dup_of}
+            if $ancestor_id
+                && !$places->{$ancestor_id}
+
     }
 }
 
@@ -274,76 +277,60 @@ sub _dedup {
     my $self       = shift;
     my $places     = shift;
     my $duplicates = shift;
-    my @ids        = uniq( @{ shift() } );
-    return unless @ids > 1;
 
-    my %dups;
-    for my $id (@ids) {
-        my $place = $places->{$id} or next;
-        my $key = join( '_', reverse @{ $place->{parent_ids} } );
-        if ( my $existing_id = $dups{$key} ) {
-            my $existing = $places->{$existing_id};
-            if ($existing) {
-                if ( $existing->{rank} >= $place->{rank} ) {
-                    my $dup = delete $places->{$id};
-                    $dup->{dup_of} = $existing_id;
-                    $duplicates->{$id} = $dup;
-                    next;
-                }
-                my $dup = delete $places->{$existing_id};
-                $dup->{dup_of} = $id;
-                $duplicates->{$existing_id} = $dup;
-            }
-        }
-        $dups{$key} = $id;
-    }
-
-    my @dup_keys = sort keys %dups;
-    return unless @dup_keys > 1;
-
-    my @uniques;
+    my @uniques = grep {$_} map { $places->{$_} } uniq @$_;
+    return unless @uniques > 1;
     my $merge_places = $self->merge_places;
 
-UNIQ: while (@dup_keys) {
-        my $current_key = shift @dup_keys;
-        my $current     = $places->{ $dups{$current_key} };
-        push @uniques, $current;
-        next unless $merge_places->{ $current->{class} };
+    my ( %tree, @deduped, %highest );
 
-        while (@dup_keys) {
-            my $compare_key = $dup_keys[0];
-            next UNIQ unless $compare_key =~ /^${current_key}/;
-            my $dup_id = $dups{$compare_key};
-            my $dup    = $places->{$dup_id};
-            next UNIQ unless $merge_places->{ $dup->{class} };
-            my $distance = $self->{_geo_distance}->distance(
-                'kilometer',
-                @{ $current->{location} }{ 'lon', 'lat' },
-                @{ $dup->{location} }{ 'lon',     'lat' },
-            );
-            next UNIQ unless $distance < 10;
-            delete $places->{$dup_id};
-            $dup->{dup_of}         = $current->{id};
-            $duplicates->{$dup_id} = $dup;
-            $current->{rank}       = $dup->{rank}
-                if $dup->{rank} > $current->{rank};
-            shift @dup_keys;
+    for my $place ( sort { $b->{rank} <=> $a->{rank} } @uniques ) {
+        my $merge;
+
+        # merge with parent if they have the same name
+        if ( $merge_places->{ $place->{class} } ) {
+            my ($parent) = grep { $_ && $merge_places->{ $_->{class} } }
+                map { $places->{$_} } @{ $place->{parent_ids} };
+            if ( $parent && $place->{name} eq $parent->{name} ) {
+                $parent->{rank} = $place->{rank}
+                    if $place->{rank} > $parent->{rank};
+                $merge = $parent;
+            }
         }
+        unless ($merge) {
+            my $branch = \%tree;
+            my $level  = 0;
+            for my $id ( reverse @{ $place->{parent_ids} } ) {
+                next unless $places->{$id};
+                $branch = $branch->{$id} ||= {};
+                $level++;
+            }
+
+            # merge with duplicate name in same area
+            $merge = $branch->{place};
+            unless ($merge) {
+                push @deduped, $place;
+                $branch->{place} = $place;
+                push @{ $highest{$level} }, $place;
+                next;
+            }
+        }
+        delete $places->{ $place->{id} };
+        $place->{dup_of} = $merge->{id};
+        $duplicates->{ $place->{id} } = $place;
     }
 
-    return if @uniques == 1;
-
-    my %tree;
-    for my $place (@uniques) {
-        my $branch = \%tree;
-        for my $id ( reverse @{ $place->{parent_ids} } ) {
-            next unless $places->{$id};
-            $branch = $branch->{$id} ||= {};
-        }
-        $branch->{place} = $place;
-    }
     $self->_assign_unique_ancestor( \%tree );
 
+    # the highest level duplicate doesn't require an ancestor
+    # to have a unique name
+    my ($exclude) = map { $highest{$_} } sort keys %highest;
+    return if @$exclude > 1;
+    ($exclude) = @$exclude;
+
+    delete $exclude->{ancestor_id}
+        if 1 == grep { $_->{ancestor_id} == $exclude->{ancestor_id} }
+            @deduped;
 }
 
 #===================================
