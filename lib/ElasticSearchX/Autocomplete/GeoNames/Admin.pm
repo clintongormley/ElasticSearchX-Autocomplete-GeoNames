@@ -327,7 +327,7 @@ sub _dedup {
     my ($exclude) = map { $highest{$_} } sort keys %highest;
     return if @$exclude > 1;
     ($exclude) = @$exclude;
-
+    return if $exclude->{rank} < 5;
     delete $exclude->{ancestor_id}
         if 1 == grep { $_->{ancestor_id} == $exclude->{ancestor_id} }
             @deduped;
