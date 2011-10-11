@@ -58,9 +58,14 @@ sub _init {
         types => {
             $self->type => {
                 custom_fields => {
-                    place_id   => { type => 'integer' },
-                    parent_ids => { type => 'integer' },
+                    parent_ids  => { type => 'integer' },
+                    place_id    => { type => 'integer' },
+                    label_short => { type => 'string', index => 'no' },
+                    dup_of      => { type => 'integer' },
                 },
+                geoloc       => 1,
+                multi_tokens => 1,
+                formatter    => \&_format_results,
                 %$params,
             }
         }
