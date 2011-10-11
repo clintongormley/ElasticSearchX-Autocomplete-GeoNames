@@ -114,10 +114,13 @@ sub index_places {
             $self->_add_altnames($places);
 
             $self->_debug( 2, ' - Removing duplicates' );
-            $self->_remove_duplicates($places);
+            my $dups = $self->_remove_duplicates($places);
 
             $self->_debug( 2, ' - Indexing places' );
             $self->_index_places($places);
+
+            $self->_debug( 2, ' - Indexing duplicates' );
+            $self->_index_dups($dups);
 
         }
         $self->_debug( 1, "Finished processing file $filename" );
@@ -269,6 +272,7 @@ sub _remove_duplicates {
                 && !$places->{$ancestor_id}
 
     }
+    return \%duplicates;
 }
 
 #===================================
@@ -499,6 +503,41 @@ sub _labels {
     );
 }
 
+#===================================
+sub _index_dups {
+#===================================
+    my $self = shift;
+    my $dups = shift;
+
+    my @phrases;
+    my $i            = 0;
+    my $langs        = $self->langs;
+    my $type_indexer = $self->type_indexer;
+
+    for my $id ( keys %$dups ) {
+        my $place = $dups->{$id};
+
+        for my $lang (@$langs) {
+            $i++;
+            push @phrases,
+                {
+                doc_id   => $place->{id} . '_' . $lang,
+                place_id => $place->{id},
+                dup_of   => $place->{dup_of},
+                rank => {$lang => 0},
+                };
+        }
+
+        if ( @phrases >= 4950 ) {
+            $type_indexer->index_phrases(
+                phrases    => \@phrases,
+                no_refresh => 0
+            );
+            @phrases = ();
+        }
+    }
+    $type_indexer->index_phrases( phrases => \@phrases );
+    $self->_debug( 1, "Indexed $i duplicates" );
 }
 
 #===================================

@@ -120,46 +120,35 @@ sub _get_place {
     my $self   = shift;
     my $params = shift;
 
-    my $result
-        = $params->{label}
-        ? $self->_get_place_by_label($params)
-        : $self->_get_place_by_id($params)
-        or return undef;
+    my $id   = $params->{id}   or croak "No place ID passed to get_place";
+    my $lang = $params->{lang} or croak "No lang passed to get_place";
 
-    my $fields = $result->{_source};
-    for ( 'parent_ids', 'tokens' ) {
-        my $val = $fields->{$_};
-        $fields->{$_}
-            = !defined $val ? []
-            : !ref $val     ? [$val]
-            :                 $val;
+    my $doc = $self->es->get(
+        index          => $params->{index},
+        type           => $params->{type},
+        id             => "${id}_${lang}",
+        ignore_missing => 1
+    ) or return undef;
+
+    if (my $dup_id = $doc->{_source}{dup_of}) {
+        return $self->_get_place({%$params, id=>$dup_id});
     }
-
-    my $context = delete $fields->{context};
-    $context =~ s{/}{}g;
-    $fields->{lang} = $context;
-    $fields->{id}   = delete $fields->{place_id};
-
-    return $fields;
+    return _localise_place( $lang, $doc );
 }
 
 #===================================
-sub _get_place_by_label {
+sub _localise_place {
 #===================================
-    my $self   = shift;
-    my $params = shift;
+    my $lang = shift;
+    my $doc  = shift;
+    my $src  = $doc->{_source};
 
-    $params->{size} = 1;
-    delete $params->{lang};
-    my $context = $params->{context};
-    my @filters = (
-        { term => { context => $context } },
-        { term => { label   => $params->{label} } }
-    );
-
-    return $self->auto_type->_context_search( $params,
-        { query => { constant_score => { filter => { and => \@filters } } } }
-    )->[0];
+    return {
+        id   => $src->{place_id},
+        lang => $lang,
+        map { $_ => $src->{$_} }
+            qw(location parent_ids rank label label_short),
+    };
 }
 
 #===================================
