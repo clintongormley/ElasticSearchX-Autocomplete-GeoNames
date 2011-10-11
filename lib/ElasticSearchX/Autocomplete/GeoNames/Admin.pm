@@ -5,6 +5,7 @@ use warnings FATAL => 'all', NONFATAL => 'redefine';
 
 use List::MoreUtils qw(uniq);
 use Carp;
+use Geo::Distance();
 
 our %Place_Ranks = (
     PCLI  => 10,    # independent political entitity
@@ -57,6 +58,7 @@ sub new {
     my $self = {
         _place_ranks  => {%Place_Ranks},
         _merge_places => {%Merge_Places},
+        _geo_distance => Geo::Distance->new(),
         _debug        => 0
     };
 
@@ -312,6 +314,21 @@ sub _dedup {
 
             # merge with duplicate name in same area
             $merge = $branch->{place};
+
+           # merge with descendants in the same tree with similar rank/latlong
+            unless ($merge) {
+                for my $desc ( grep $_, $self->_descendants($branch) ) {
+                    next if abs( $desc->{rank} - $place->{rank} ) > 2;
+                    my $distance = $self->{_geo_distance}->distance(
+                        'kilometer',
+                        @{ $place->{location} }{ 'lon', 'lat' },
+                        @{ $desc->{location} }{ 'lon',  'lat' },
+                    );
+                    next if $distance > 5;
+                    $merge = $desc;
+                    last;
+                }
+            }
             unless ($merge) {
                 push @deduped, $place;
                 $branch->{place} = $place;
@@ -335,6 +352,16 @@ sub _dedup {
     delete $exclude->{ancestor_id}
         if 1 == grep { $_->{ancestor_id} == $exclude->{ancestor_id} }
             @deduped;
+}
+
+#===================================
+sub _descendants {
+#===================================
+    my $self   = shift;
+    my $branch = shift;
+    my $place  = $branch->{place} || '';
+    return $place, map { $self->_descendants($_) }
+        grep { $_ ne $place } values %$branch;
 }
 
 #===================================
@@ -524,7 +551,7 @@ sub _index_dups {
                 doc_id   => $place->{id} . '_' . $lang,
                 place_id => $place->{id},
                 dup_of   => $place->{dup_of},
-                rank => {$lang => 0},
+                rank     => { $lang => 0 },
                 };
         }
 
