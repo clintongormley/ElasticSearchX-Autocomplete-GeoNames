@@ -152,19 +152,13 @@ sub _localise_place {
 }
 
 #===================================
-sub _get_place_by_id {
+sub _format_results {
 #===================================
-    my $self   = shift;
-    my $params = shift;
-    my $id     = $params->{id};
-    my $lang   = $params->{lang};
-
-    return $self->es->get(
-        index          => $params->{index},
-        type           => $params->{type},
-        id             => "${id}_${lang}",
-        ignore_missing => 1
-    );
+    my $auto    = shift;
+    my $params  = shift;
+    my $results = shift;
+    my $lang    = substr( $params->{context}, 1 );
+    $results = [ map { _localise_place( $lang, $_ ) } @$results ];
 }
 
 #===================================
