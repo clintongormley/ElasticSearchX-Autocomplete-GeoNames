@@ -3,7 +3,7 @@ package ElasticSearchX::Autocomplete::GeoNames;
 use strict;
 use warnings FATAL => 'all', NONFATAL => 'redefine';
 
-use ElasticSearchX::Autocomplete();
+use ElasticSearchX::Autocomplete 0.06;
 use ElasticSearchX::Autocomplete::Util qw(
     _create_accessors _params
     _debug _try_cache cache_key
@@ -11,7 +11,7 @@ use ElasticSearchX::Autocomplete::Util qw(
 
 use Carp;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 __PACKAGE__->_create_accessors(
     ['cache'],
@@ -173,13 +173,7 @@ sub admin {
     );
 }
 
-=head1 NAME
-
-ElasticSearchX::Autocomplete::GeoNames - Autocomplete of geolocation data from GeoNames
-
-=head1 VERSION
-
-Version 0.05 - alpha
+# ABSTRACT: Autocomplete of geolocation data from GeoNames
 
 =head1 DESCRIPTION
 

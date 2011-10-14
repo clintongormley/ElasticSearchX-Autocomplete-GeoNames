@@ -1,4 +1,13 @@
 Revision history for ElasticSearchX-Autocomplete-GeoNames
+0.06    2011-10-14
+        Greatly improved the deduplication process
+        Also index duplicates, so that if the "main" location ID changes, we
+        can automatically retrieve the correct location
+        Can now store tokens for multiple variations of a place name
+        Now requires ElasticSearch version 0.17
+        suggest() now returns a hashref, not just the place names
+        Removed the ability to get a place by its unique label
+
 0.05    2011-05-14
         Don't merge places with the same name that are more than 10km apart.
         Removed some hard-coded paths from geonames_admin.pl
