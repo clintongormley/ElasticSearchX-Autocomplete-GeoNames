@@ -431,8 +431,7 @@ sub _add_altnames {
     for my $id ( keys %names ) {
         my $names = $names{$id};
         my $place = $places->{$id};
-        $place->{name} = $names->{default}{long}
-            || $place->{name};
+        $place->{name}       = $names->{default}{long}  || $place->{name};
         $place->{short_name} = $names->{default}{short} || $place->{name};
         for my $lang ( values %$names ) {
             my $alts = delete $lang->{alts};
@@ -622,7 +621,7 @@ sub index_altnames {
                 id    => $row->[0],
                 data  => {
                     place_id  => $row->[1],
-                    lang      => $row->[2],
+                    lang      => $row->[2] || '',
                     name      => $row->[3],
                     preferred => $row->[4] || 0,
                     short     => $row->[5] || 0
