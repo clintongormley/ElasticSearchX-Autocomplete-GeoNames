@@ -494,6 +494,7 @@ sub _labels {
     my $self    = shift;
     my $lang    = shift;
     my $place   = shift;
+
     my $parents = join ', ', '', map {
                $_->{names}{$lang}{short}
             || $_->{names}{$lang}{long}
@@ -507,6 +508,7 @@ sub _labels {
     my $name
         = $lang_names->{long}
         || $lang_names->{short}
+        || $place->{short_name}
         || $place->{name};
 
     my $full = $name . $parents;
