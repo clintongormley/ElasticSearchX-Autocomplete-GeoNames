@@ -647,7 +647,7 @@ sub init_altnames_index {
 
     my $index = $self->altnames_index;
     my $type  = $self->altnames_type;
-    if ( $check_exists && $es->mapping( index => $index )->{$index}{$type} ) {
+    if ( $check_exists && eval { $es->mapping( index => $index )->{$index}{$type} } ) {
         $self->_debug( 1, "Altnames index exists: $index/$type" );
     }
     else {
